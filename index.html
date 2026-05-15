@@ -63,11 +63,14 @@
       background: color-mix(in srgb, var(--lift-color) 16%, transparent);
     }
 
-    .lift-bench     { --lift-color: #ef4444; }
-    .lift-squat     { --lift-color: #22c55e; }
-    .lift-deadlift  { --lift-color: #a855f7; }
-    .lift-ohp       { --lift-color: #f97316; }
-    .lift-row       { --lift-color: #3b82f6; }
+    .lift-btn.dummy { opacity: 0.45; cursor: default; }
+    .lift-btn.dummy:hover { background: transparent; }
+
+    .lift-bench    { --lift-color: #ef4444; }
+    .lift-squat    { --lift-color: #22c55e; }
+    .lift-deadlift { --lift-color: #a855f7; }
+    .lift-ohp      { --lift-color: #f97316; }
+    .lift-row      { --lift-color: #3b82f6; }
 
     /* ── Header ── */
     header {
@@ -271,7 +274,6 @@
       transition: width 0.6s cubic-bezier(.22,1,.36,1);
     }
 
-    /* tier colors — advanced/elite swapped per design */
     .tier-untrained    { --tier-color: #94a3b8; }
     .tier-novice       { --tier-color: #34d399; }
     .tier-intermediate { --tier-color: #60a5fa; }
@@ -293,11 +295,11 @@
 <body>
 
   <div class="lift-selector">
-    <button class="lift-btn lift-bench active">Bench Press</button>
-    <button class="lift-btn lift-squat">Squat</button>
-    <button class="lift-btn lift-deadlift">Deadlift</button>
-    <button class="lift-btn lift-ohp">Overhead Press</button>
-    <button class="lift-btn lift-row">Bent Over Row</button>
+    <button class="lift-btn lift-bench active" data-lift="bench">Bench Press</button>
+    <button class="lift-btn lift-squat dummy">Squat</button>
+    <button class="lift-btn lift-deadlift dummy">Deadlift</button>
+    <button class="lift-btn lift-ohp" data-lift="ohp">Overhead Press</button>
+    <button class="lift-btn lift-row dummy">Bent Over Row</button>
   </div>
 
   <header>
@@ -308,13 +310,7 @@
   <div class="input-card">
     <label for="weight">Bodyweight</label>
     <div class="input-row">
-      <input
-        type="number"
-        id="weight"
-        min="50"
-        max="500"
-        step="1"
-      />
+      <input type="number" id="weight" min="50" max="500" step="1" />
       <button class="calc-btn" onclick="calculate()">Calculate</button>
     </div>
     <p class="hint">Enter weight in lbs</p>
@@ -322,7 +318,7 @@
 
   <div class="results" id="results">
     <div class="results-header">
-      <span class="results-title">1-Rep Max Standards</span>
+      <span class="results-title" id="results-title">1-Rep Max Standards</span>
       <span class="results-subtitle" id="results-for"></span>
     </div>
   </div>
@@ -333,53 +329,59 @@
   </footer>
 
   <script>
-    const TIERS = [
-      {
-        key: 'untrained',
-        label: 'Untrained',
-        desc: 'No training history',
-        cls: 'tier-untrained',
-        fn: w => 155.18 / (1 + Math.exp(-0.02039 * (w - 104.72))),
-      },
-      {
-        key: 'novice',
-        label: 'Novice',
-        desc: '3–12 months of consistent training',
-        cls: 'tier-novice',
-        fn: w => 203.62 / (1 + Math.exp(-0.01957 * (w - 108.06))),
-      },
-      {
-        key: 'intermediate',
-        label: 'Intermediate',
-        desc: '1–3 years of consistent training',
-        cls: 'tier-intermediate',
-        fn: w => 248.43 / (1 + Math.exp(-0.02    * (w - 109.13))),
-      },
-      {
-        key: 'int-adv',
-        label: 'Intermediate–Advanced',
-        desc: '3–6 years of serious training',
-        cls: 'tier-int-adv',
-        fn: w => 293.46 / (1 + Math.exp(-0.01981 * (w - 108.15))),
-      },
-      {
-        key: 'advanced',
-        label: 'Advanced',
-        desc: '6+ years of dedicated training',
-        cls: 'tier-advanced',
-        fn: w => 338.49 / (1 + Math.exp(-0.01962 * (w - 107.16))),
-      },
-      {
-        key: 'elite',
-        label: 'Elite',
-        desc: 'Competitive-level performance',
-        cls: 'tier-elite',
-        fn: w => 418.95 / (1 + Math.exp(-0.02079 * (w - 108.79))),
-      },
+    const TIERS_META = [
+      { key: 'untrained',    label: 'Untrained',              desc: 'No training history',            cls: 'tier-untrained'    },
+      { key: 'novice',       label: 'Novice',                 desc: '3–12 months of consistent training', cls: 'tier-novice'  },
+      { key: 'intermediate', label: 'Intermediate',           desc: '1–3 years of consistent training',   cls: 'tier-intermediate' },
+      { key: 'int-adv',      label: 'Intermediate–Advanced',  desc: '3–6 years of serious training',   cls: 'tier-int-adv'    },
+      { key: 'advanced',     label: 'Advanced',               desc: '6+ years of dedicated training',  cls: 'tier-advanced'   },
+      { key: 'elite',        label: 'Elite',                  desc: 'Competitive-level performance',   cls: 'tier-elite'      },
     ];
+
+    const LIFTS = {
+      bench: {
+        label: 'Bench Press',
+        fns: [
+          w => 155.18 / (1 + Math.exp(-0.02039 * (w - 104.72))),
+          w => 203.62 / (1 + Math.exp(-0.01957 * (w - 108.06))),
+          w => 248.43 / (1 + Math.exp(-0.02    * (w - 109.13))),
+          w => 293.46 / (1 + Math.exp(-0.01981 * (w - 108.15))),
+          w => 338.49 / (1 + Math.exp(-0.01962 * (w - 107.16))),
+          w => 418.95 / (1 + Math.exp(-0.02079 * (w - 108.79))),
+        ],
+      },
+      ohp: {
+        label: 'Overhead Press',
+        fns: [
+          w => 101.99 / (1 + Math.exp(-0.01696 * (w - 102.42))),
+          w => 137.79 / (1 + Math.exp(-0.01679 * (w - 103.17))),
+          w => 171.59 / (1 + Math.exp(-0.01976 * (w - 107.56))),
+          w => 187.06 / (1 + Math.exp(-0.02005 * (w - 107.66))),
+          w => 202.53 / (1 + Math.exp(-0.02034 * (w - 107.75))),
+          w => 289.14 / (1 + Math.exp(-0.02024 * (w - 127.24))),
+        ],
+      },
+    };
+
+    let activeLift = 'bench';
 
     function mround(value, multiple) {
       return Math.round(value / multiple) * multiple;
+    }
+
+    function switchLift(liftKey) {
+      if (liftKey === activeLift) return;
+      activeLift = liftKey;
+
+      document.querySelectorAll('.lift-btn[data-lift]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lift === liftKey);
+      });
+
+      // clear results when switching lifts
+      const container = document.getElementById('results');
+      container.querySelectorAll('.tier-card').forEach(c => c.remove());
+      container.classList.remove('visible');
+      document.getElementById('results-for').textContent = '';
     }
 
     function calculate() {
@@ -393,14 +395,16 @@
         return;
       }
 
-      const results = TIERS.map(t => ({
-        ...t,
-        lbs: mround(t.fn(w), 2.5),
+      const lift = LIFTS[activeLift];
+      const results = TIERS_META.map((meta, i) => ({
+        ...meta,
+        lbs: mround(lift.fns[i](w), 2.5),
       }));
 
       const maxLbs = results[results.length - 1].lbs;
-
       const container = document.getElementById('results');
+
+      document.getElementById('results-title').textContent = `${lift.label} · 1-Rep Max Standards`;
       document.getElementById('results-for').textContent = `for ${w} lb bodyweight`;
 
       container.querySelectorAll('.tier-card').forEach(c => c.remove());
@@ -433,6 +437,10 @@
         });
       }));
     }
+
+    document.querySelectorAll('.lift-btn[data-lift]').forEach(btn => {
+      btn.addEventListener('click', () => switchLift(btn.dataset.lift));
+    });
 
     document.getElementById('weight').addEventListener('keydown', e => {
       if (e.key === 'Enter') calculate();
