@@ -372,7 +372,7 @@
 
   <div class="lift-selector">
     <button class="lift-btn lift-bench active" data-lift="bench">Bench Press</button>
-    <button class="lift-btn lift-squat dummy">Squat</button>
+    <button class="lift-btn lift-squat" data-lift="squat">Squat</button>
     <button class="lift-btn lift-deadlift" data-lift="deadlift">Deadlift</button>
     <button class="lift-btn lift-ohp" data-lift="ohp">Overhead Press</button>
     <button class="lift-btn lift-row dummy">Bent Over Row</button>
@@ -434,6 +434,18 @@
           w => 448.40 / (1 + Math.exp(-0.02142 * (w - 103.85))),
           w => 511.16 / (1 + Math.exp(-0.02192 * (w -  99.32))),
           w => 611.33 / (1 + Math.exp(-0.02380 * (w -  91.96))),
+        ],
+        female: null,
+      },
+      squat: {
+        label: 'Squat',
+        male: [
+          w => 146.74 / (1 + Math.exp(-0.01854 * (w - 105.51))),
+          w => 272.81 / (1 + Math.exp(-0.01920 * (w - 107.04))),
+          w => 329.82 / (1 + Math.exp(-0.02053 * (w - 107.99))),
+          w => 390.30 / (1 + Math.exp(-0.02051 * (w - 107.91))),
+          w => 450.77 / (1 + Math.exp(-0.02049 * (w - 107.82))),
+          w => 590.82 / (1 + Math.exp(-0.01904 * (w - 105.17))),
         ],
         female: null,
       },
