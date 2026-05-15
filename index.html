@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bench Press Strength Standards</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a24;
+      --surface2: #22222f;
+      --border: #2e2e40;
+      --accent: #6c63ff;
+      --accent2: #a78bfa;
+      --text: #f0f0f8;
+      --muted: #8888a8;
+      --success: #34d399;
+      --gold: #fbbf24;
+      --radius: 16px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #6c63ff22, #a78bfa22);
+      border: 1px solid #6c63ff55;
+      color: var(--accent2);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.35em 1em;
+      border-radius: 99px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text) 40%, var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      max-width: 42ch;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* ── Input card ── */
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    input[type="number"] {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px #6c63ff22;
+    }
+
+    button {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.75rem 1.4rem;
+      transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    button:hover { opacity: 0.88; }
+    button:active { transform: scale(0.97); }
+
+    .hint {
+      margin-top: 0.6rem;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    /* ── Results ── */
+    .results {
+      width: 100%;
+      max-width: 680px;
+      display: none;
+      flex-direction: column;
+      gap: 0.85rem;
+      animation: fadeUp 0.35s ease both;
+    }
+
+    .results.visible { display: flex; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+    }
+
+    .results-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .results-subtitle {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* ── Result rows ── */
+    .tier-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .tier-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 4px 0 0 4px;
+      background: var(--tier-color, var(--accent));
+    }
+
+    .tier-card:hover { border-color: color-mix(in srgb, var(--tier-color) 40%, var(--border)); }
+
+    .tier-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .tier-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .tier-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--tier-color, var(--text));
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .tier-unit {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: right;
+      letter-spacing: 0.05em;
+    }
+
+    /* progress bar strip at bottom */
+    .bar-wrap {
+      grid-column: 1 / -1;
+      background: var(--surface2);
+      border-radius: 99px;
+      height: 5px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--tier-color, var(--accent));
+      width: 0;
+      transition: width 0.6s cubic-bezier(.22,1,.36,1);
+    }
+
+    /* tier color vars */
+    .tier-untrained    { --tier-color: #94a3b8; }
+    .tier-novice       { --tier-color: #34d399; }
+    .tier-intermediate { --tier-color: #60a5fa; }
+    .tier-int-adv      { --tier-color: #a78bfa; }
+    .tier-advanced     { --tier-color: #f97316; }
+    .tier-elite        { --tier-color: #fbbf24; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 3rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="badge">Bench Press</div>
+    <h1>Strength Standards<br>Calculator</h1>
+    <p class="subtitle">Enter your bodyweight to see the 1-rep max benchmarks across every training level.</p>
+  </header>
+
+  <div class="input-card">
+    <label for="weight">Bodyweight</label>
+    <div class="input-row">
+      <input
+        type="number"
+        id="weight"
+        placeholder="155"
+        min="50"
+        max="500"
+        step="1"
+      />
+      <button onclick="calculate()">Calculate</button>
+    </div>
+    <p class="hint">Enter weight in lbs &nbsp;·&nbsp; Results rounded to nearest 2.5 lbs</p>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-header">
+      <span class="results-title">1-Rep Max Standards</span>
+      <span class="results-subtitle" id="results-for"></span>
+    </div>
+
+    <!-- cards injected by JS -->
+  </div>
+
+  <footer>
+    Standards based on logistic curve models fitted to population data.<br>
+    Individual results may vary. Always train within your limits.
+  </footer>
+
+  <script>
+    const TIERS = [
+      {
+        key: 'untrained',
+        label: 'Untrained',
+        desc: 'No training history',
+        cls: 'tier-untrained',
+        fn: w => 155.18  / (1 + Math.exp(-0.02039 * (w - 104.72))),
+      },
+      {
+        key: 'novice',
+        label: 'Novice',
+        desc: '3–9 months of consistent training',
+        cls: 'tier-novice',
+        fn: w => 203.62  / (1 + Math.exp(-0.01957 * (w - 108.06))),
+      },
+      {
+        key: 'intermediate',
+        label: 'Intermediate',
+        desc: '1–2 years of consistent training',
+        cls: 'tier-intermediate',
+        fn: w => 248.43  / (1 + Math.exp(-0.02    * (w - 109.13))),
+      },
+      {
+        key: 'int-adv',
+        label: 'Intermediate–Advanced',
+        desc: '2–4 years of serious training',
+        cls: 'tier-int-adv',
+        fn: w => 293.46  / (1 + Math.exp(-0.01981 * (w - 108.15))),
+      },
+      {
+        key: 'advanced',
+        label: 'Advanced',
+        desc: '4+ years of dedicated training',
+        cls: 'tier-advanced',
+        fn: w => 338.49  / (1 + Math.exp(-0.01962 * (w - 107.16))),
+      },
+      {
+        key: 'elite',
+        label: 'Elite',
+        desc: 'Competitive-level performance',
+        cls: 'tier-elite',
+        fn: w => 418.95  / (1 + Math.exp(-0.02079 * (w - 108.79))),
+      },
+    ];
+
+    function mround(value, multiple) {
+      return Math.round(value / multiple) * multiple;
+    }
+
+    function calculate() {
+      const input = document.getElementById('weight');
+      const w = parseFloat(input.value);
+
+      if (!w || w < 50 || w > 500) {
+        input.focus();
+        input.style.borderColor = '#f87171';
+        setTimeout(() => input.style.borderColor = '', 1200);
+        return;
+      }
+
+      const results = TIERS.map(t => ({
+        ...t,
+        lbs: mround(t.fn(w), 2.5),
+      }));
+
+      const maxLbs = results[results.length - 1].lbs;
+
+      const container = document.getElementById('results');
+      document.getElementById('results-for').textContent = `for ${w} lb bodyweight`;
+
+      // clear old cards (keep header div)
+      const cards = container.querySelectorAll('.tier-card');
+      cards.forEach(c => c.remove());
+
+      results.forEach((r, i) => {
+        const pct = Math.round((r.lbs / maxLbs) * 100);
+        const card = document.createElement('div');
+        card.className = `tier-card ${r.cls}`;
+        card.style.animationDelay = `${i * 55}ms`;
+        card.innerHTML = `
+          <div>
+            <div class="tier-name">${r.label}</div>
+            <div class="tier-desc">${r.desc}</div>
+          </div>
+          <div>
+            <div class="tier-value">${r.lbs}</div>
+            <div class="tier-unit">LBS</div>
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-fill" data-pct="${pct}"></div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      container.classList.add('visible');
+
+      // animate bars after paint
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        container.querySelectorAll('.bar-fill').forEach(bar => {
+          bar.style.width = bar.dataset.pct + '%';
+        });
+      }));
+    }
+
+    // allow Enter key to trigger calculation
+    document.getElementById('weight').addEventListener('keydown', e => {
+      if (e.key === 'Enter') calculate();
+    });
+  </script>
+
+</body>
+</html>
