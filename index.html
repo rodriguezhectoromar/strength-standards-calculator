@@ -375,7 +375,7 @@
     <button class="lift-btn lift-squat" data-lift="squat">Squat</button>
     <button class="lift-btn lift-deadlift" data-lift="deadlift">Deadlift</button>
     <button class="lift-btn lift-ohp" data-lift="ohp">Overhead Press</button>
-    <button class="lift-btn lift-row dummy">Bent Over Row</button>
+    <button class="lift-btn lift-row" data-lift="row">Bent Over Row</button>
   </div>
 
   <div class="results" id="results">
@@ -446,6 +446,18 @@
           w => 390.30 / (1 + Math.exp(-0.02051 * (w - 107.91))),
           w => 450.77 / (1 + Math.exp(-0.02049 * (w - 107.82))),
           w => 590.82 / (1 + Math.exp(-0.01904 * (w - 105.17))),
+        ],
+        female: null,
+      },
+      row: {
+        label: 'Bent Over Row',
+        male: [
+          w => 184.10 / (1 + Math.exp(-0.01827 * (w - 168.10))),
+          w => 245.80 / (1 + Math.exp(-0.01612 * (w - 159.60))),
+          w => 319.20 / (1 + Math.exp(-0.01462 * (w - 151.00))),
+          w => 357.90 / (1 + Math.exp(-0.01408 * (w - 145.20))),
+          w => 396.40 / (1 + Math.exp(-0.01370 * (w - 140.10))),
+          w => 479.90 / (1 + Math.exp(-0.01286 * (w - 131.00))),
         ],
         female: null,
       },
